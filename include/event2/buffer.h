@@ -325,6 +325,23 @@ int evbuffer_commit_space(struct evbuffer *buf,
     struct evbuffer_iovec *vec, int n_vecs);
 
 /**
+   Commits the space reserved by evbuffer_reserve_space() and associates a timespec with the committed chains.
+
+   @param buf the evbuffer in which to reserve space.
+   @param vec one or two extents returned by evbuffer_reserve_space.
+   @param n_vecs the number of extents.
+   @param ts pointer to timespec.
+   @param ts_valid non-zero if the timespec is valid.
+   @return 0 on success, -1 on error
+   @see evbuffer_reserve_space()
+*/
+EVENT2_EXPORT_SYMBOL
+int evbuffer_commit_space_with_timespec(struct evbuffer *buf,
+    struct evbuffer_iovec *vec, int n_vecs,
+    const struct timespec *ts, int ts_valid);
+
+
+/**
   Append data to the end of an evbuffer.
 
   @param buf the evbuffer to be appended to
@@ -733,6 +750,42 @@ int evbuffer_write_atmost(struct evbuffer *buffer, evutil_socket_t fd,
  */
 EVENT2_EXPORT_SYMBOL
 int evbuffer_read(struct evbuffer *buffer, evutil_socket_t fd, int howmuch);
+
+/**
+  Read from a file descriptor and store the result in an evbuffer.
+
+  @param buffer the evbuffer to store the result
+  @param fd the file descriptor to read from
+  @param howmuch the number of bytes to be read
+  @return the number of bytes read, or -1 if an error occurred
+  @see evbuffer_write()
+ */
+EVENT2_EXPORT_SYMBOL
+int evbuffer_read_with_timestamp(struct evbuffer *buffer, evutil_socket_t fd,
+    int howmuch);
+
+/**
+ * Get the timestamp stored for the oldest recent data in the buffer chain. This
+ * is the timestamp of the oldest data in the buffer, or the timestamp of the
+ * most recent data if the buffer is empty.
+ *
+ * Returns the timestamp of when the oldest bytes currently in the buffer
+ * were received from the kernel. This is the timestamp of the first chain
+ * in the buffer.
+ *
+ * Note: When evbuffer_pullup() consolidates multiple chains, only the
+ * timestamp from the first (oldest) chain is preserved. This ensures that
+ * the timestamp always reflects when the oldest data in the buffer was
+ * received, regardless of how many internal consolidation operations
+ * have occurred.
+ *
+ * @param buffer The buffer to read from
+ * @param timestamp where to store the result
+ * @return 0 success
+ *         -1 failure (or no timestamp available)
+ */
+EVENT2_EXPORT_SYMBOL
+int evbuffer_get_timestamp(struct evbuffer *buffer, struct timespec *timestamp);
 
 /**
    Search for a string within an evbuffer.

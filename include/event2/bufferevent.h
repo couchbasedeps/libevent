@@ -170,7 +170,14 @@ enum bufferevent_options {
 	* bufferevent.  This option currently requires that
 	* BEV_OPT_DEFER_CALLBACKS also be set; a future version of Libevent
 	* might remove the requirement.*/
-	BEV_OPT_UNLOCK_CALLBACKS = (1<<3)
+	BEV_OPT_UNLOCK_CALLBACKS = (1<<3),
+
+	/** If set, capture kernel-measured receive timestamps for socket
+	 * bufferevents. Timestamps can be retrieved with
+	 * bufferevent_socket_get_recv_timestamp() or
+	 * bufferevent_socket_get_recv_timestamp_ns(). Only supported for
+	 * socket bufferevents created with bufferevent_socket_new(). */
+	BEV_OPT_RECV_TIMESTAMPS = (1<<4)
 };
 
 /**
@@ -1016,6 +1023,8 @@ EVENT2_EXPORT_SYMBOL
 void
 bufferevent_rate_limit_group_reset_totals(
 	struct bufferevent_rate_limit_group *grp);
+
+/*@}*/
 
 #ifdef __cplusplus
 }
